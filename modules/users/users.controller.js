@@ -4,10 +4,13 @@ var jwt = require('jsonwebtoken');
 
 const User = require('../../models/user');
 const validations = require('./user.validation');
-const { secret } = require('../../config/keys');
+const { secret, token_expiry } = require('../../config/keys');
 
-const getAllUsers = (req, res) => {
-   return res.send('All users');
+const getAllUsers = async (req, res) => {
+    const users = await User.find({});
+    const allUsers = users.map(user => ({ name : user.name, email : user.email }));
+
+    return res.json(allUsers);
 };
 
 const register = async (req, res) => {
@@ -56,7 +59,7 @@ const login = async (req, res) => {
     const token = jwt.sign({
         email : user.email,
         id    : user._id
-    }, secret);
+    }, secret, { expiresIn : token_expiry });
 
     return res.status(200).json({
         data : {
@@ -67,8 +70,15 @@ const login = async (req, res) => {
     });
 };
 
+const getUserData = (req, res) => {
+    const { user } = req;
+
+    return res.json({ data : { name : user.name, id : user._id, email : user.email } });
+}
+
 module.exports = {
     getAllUsers,
     register,
     login,
+    getUserData,
 }
