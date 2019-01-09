@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -9,6 +10,9 @@ const { appModules } = require('./config/appConfig');
 mongoose.connect(mongoURI)
     .then(() => console.log('DB CONNECTED!'))
     .catch(err => console.log('ERR::', err));
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
     return res.send('HELLO WORLD!');
